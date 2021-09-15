@@ -2,11 +2,10 @@
 % Please edit documentation in R/class-core.R
 \name{Firebase}
 \alias{Firebase}
-\title{Fireblaze}
+\title{Firebase}
 \description{
-Use fireblaze to manage authentications.
+Use firebase to manage authentications.
 }
-\keyword{internal}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -27,6 +26,7 @@ Use fireblaze to manage authentications.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-new}{\code{Firebase$new()}}
+\item \href{#method-print}{\code{Firebase$print()}}
 \item \href{#method-sign_out}{\code{Firebase$sign_out()}}
 \item \href{#method-get_sign_out}{\code{Firebase$get_sign_out()}}
 \item \href{#method-get_signed_in}{\code{Firebase$get_signed_in()}}
@@ -37,6 +37,8 @@ Use fireblaze to manage authentications.
 \item \href{#method-set_language_code}{\code{Firebase$set_language_code()}}
 \item \href{#method-delete_user}{\code{Firebase$delete_user()}}
 \item \href{#method-get_delete_user}{\code{Firebase$get_delete_user()}}
+\item \href{#method-get_access_token}{\code{Firebase$get_access_token()}}
+\item \href{#method-clear}{\code{Firebase$clear()}}
 \item \href{#method-clone}{\code{Firebase$clone()}}
 }
 }
@@ -58,14 +60,27 @@ Use fireblaze to manage authentications.
 \item{\code{persistence}}{How the auth should persit: \code{none}, the user has to sign in at every visit,
 \code{session} will only persist in current tab, \code{local} persist even when window is closed.}
 
-\item{\code{config_path}}{Path to the configuration file as created by \code{\link{create_config}}.}
+\item{\code{config_path}}{Path to the configuration file as created by \code{\link{firebase_config}}.}
 
 \item{\code{session}}{A valid shiny session.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Details}{
-Initialise Fireblaze
+Initialise firebase
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Firebase$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Print the class
 }
 
 }
@@ -230,9 +245,6 @@ self
 
 \subsection{Details}{
 Get result of user deletion
-
-
-Get results of a sign up
 }
 
 \subsection{Returns}{
@@ -240,6 +252,39 @@ A list of length 2 containing \code{success} a boolean
 indicating wherther deletion was successful and \code{response}
 containing either \code{successful} string or the error if signing in failed.
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-get_access_token"></a>}}
+\if{latex}{\out{\hypertarget{method-get_access_token}{}}}
+\subsection{Method \code{get_access_token()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Firebase$get_access_token()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Get user access token
+}
+
+\subsection{Returns}{
+User's access token
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clear"></a>}}
+\if{latex}{\out{\hypertarget{method-clear}{}}}
+\subsection{Method \code{clear()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Firebase$clear()}\if{html}{\out{</div>}}
+}
+
+\subsection{Details}{
+Clear user session
+
+This clears the login internally and will retrigger a JWT
+token check, only useful if you are running really long
+sessions.
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-clone"></a>}}
