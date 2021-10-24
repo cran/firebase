@@ -4,15 +4,9 @@ var ui_initialised = false;
 
 window.state = {
   initialised: false,
+  ns: '',
   update() {
     console.log(`Fireblaze initialized: ${this.initialised}`);
-  },
-  get pageNumber() {
-    return this.initialised;
-  },
-  set pageNumber(init) {
-    this.initialised = init;
-    this.update(this.initialised);
   }
 };
 
@@ -21,6 +15,8 @@ Shiny.addCustomMessageHandler('fireblaze-initialize', function(msg) {
 
   if(!window.state.initialised){
     window.state.initialised = true;
+    // set namespace
+    window.state.ns = msg.ns;
     // init
     firebase.initializeApp(msg.conf);
 
@@ -38,9 +34,7 @@ Shiny.addCustomMessageHandler('fireblaze-initialize', function(msg) {
 
         firebase.auth().currentUser.getIdToken(true)
           .then(function(token) {
-            console.log(token);
-            // set input
-            Shiny.setInputValue('fireblaze_' + 'signed_in_user', {success: true, response: user, token: token});
+            Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'signed_in_user', {success: true, response: user, token: token}, {priority: 'event'});
           }).catch(function(error) {
             console.error('failed to login');
           });
@@ -52,8 +46,8 @@ Shiny.addCustomMessageHandler('fireblaze-initialize', function(msg) {
         showHideOnLogout("show");
 
         // set error input
-        Shiny.setInputValue('fireblaze_' + 'signed_in', {success: false, response: null});
-        Shiny.setInputValue('fireblaze_' + 'signed_in_user', {success: false, response: null});
+        Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'signed_in', {success: false, response: null});
+        Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'signed_in_user', {success: false, response: null});
       }
     });
 
@@ -66,16 +60,16 @@ Shiny.addCustomMessageHandler('fireblaze-initialize', function(msg) {
       // the flow on the same device where they started it.
       var email = window.localStorage.getItem('fireblazeEmailSignIn');
       if (!email) {
-        Shiny.setInputValue('fireblaze_' + 'email_verification', {success: false, response: "Cannot find email"});
+        Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'email_verification', {success: false, response: "Cannot find email"});
       }
       // The client SDK will parse the code from the link for you.
       firebase.auth().signInWithEmailLink(email, window.location.href)
         .then(function(result) {
           window.localStorage.removeItem('fireblazeEmailSignIn');
-          Shiny.setInputValue('fireblaze_' + 'email_verification', {success: true, response: result});
+          Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'email_verification', {success: true, response: result});
         })
         .catch(function(error) {
-          Shiny.setInputValue('fireblaze_' + 'email_verification', {success: false, response: error});
+          Shiny.setInputValue(window.state.ns + 'fireblaze_' + 'email_verification', {success: false, response: error});
         });
     }
 
@@ -97,7 +91,7 @@ Shiny.addCustomMessageHandler('fireblaze-ui-config', function(msg) {
   ui_opts = {
     callbacks: {
       signInSuccessWithAuthResult: function(authResult, redirectUrl){
-        Shiny.setInputValue('fireblaze_' + 'signed_up_user', {success: true, response: firebase.auth().currentUser});
+        Shiny.setInputValue(msg.ns + 'fireblaze_' + 'signed_up_user', {success: true, response: firebase.auth().currentUser});
         return(false);
       },
       uiShown: function() {
@@ -127,9 +121,9 @@ Shiny.addCustomMessageHandler('fireblaze-signout', function(msg) {
         $("#fireblaze-signin-ui").show();
       }
 
-      Shiny.setInputValue('fireblaze_' + 'signout', {success: true, response: 'successful'})
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'signout', {success: true, response: 'successful'})
     }).catch(function(error) {
-      Shiny.setInputValue('fireblaze_' + 'signout', {success: false, response: error})
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'signout', {success: false, response: error})
     });
 
 });
@@ -145,8 +139,17 @@ Shiny.addCustomMessageHandler('fireblaze-delete-user', function(msg) {
 
   user.delete()
     .then(function() {
-      Shiny.setInputValue('fireblaze_' + 'deleted_user', {success: true, response: 'successful'})
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'deleted_user', {success: true, response: 'successful'});
     }).catch(function(error) {
-      Shiny.setInputValue('fireblaze_' + 'deleted_user', {success: false, response: error})
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'deleted_user', {success: false, response: error});
+    });
+});
+
+Shiny.addCustomMessageHandler('fireblaze-id-token', function(msg) {
+  firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+    .then(function(idToken) {
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'id_token', {response: {idToken: idToken}, success: true});
+    }).catch(function(error) {
+      Shiny.setInputValue(msg.ns + 'fireblaze_' + 'id_token', {response: error, success: false});
     });
 });

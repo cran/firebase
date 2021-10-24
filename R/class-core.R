@@ -33,6 +33,9 @@ Firebase <- R6::R6Class(
 
       private$.project_id <- conf$projectId
 
+      # namespace
+      private$namespace(session)
+
       # init
       private$send("initialize", msg)
     },
@@ -133,6 +136,24 @@ Firebase <- R6::R6Class(
     clear = function(){
       private$.user_signed_in = list(signed_in = FALSE, user = NULL)
       invisible(self)
+    },
+#' @details Request the users' ID Token
+#' 
+#' Used to retrieved the user's ID token useful to connect
+#' with other Google APIs and make request on the user's behalf.
+#' This executes the request for the id token, this request
+#' can only be made once the user is signed in.
+#' 
+#' The actual id token is obtained with the `get_id_token`
+#' method.
+    request_id_token = function(){
+      private$send("id-token")
+    },
+#' @details Retrieve the users' ID Token
+#' 
+#' Also see `request_id_token`.
+    get_id_token = function(){
+      private$get_input("id_token")
     }
   ),
   active = list(
@@ -152,8 +173,15 @@ Firebase <- R6::R6Class(
     }
   ),
   private = list(
+    namespace = function(session){
+      ns <- session$ns(NULL)
+      if(length(ns) > 0 && ns != "")
+        ns <- paste0(ns, "-")
+      private$.ns <- ns
+    },
     send = function(func, msg = list()){
       func <- paste0("fireblaze-", func)
+      msg$ns <- private$.ns
       self$session$sendCustomMessage(func, msg)
     },
     get_input = function(name){
@@ -272,6 +300,7 @@ Firebase <- R6::R6Class(
     .user_sign_up = list(signed_up = FALSE, user = NULL),
     .language_code = NULL,
     unique_id = NULL,
-    .project_id = ""
+    .project_id = "",
+    .ns = ""
   )
 )

@@ -1,3 +1,11 @@
+# firebase 0.2.1
+
+- Allow firebase to work in modules.
+- Added `email_link` to `FirebaseUI`.
+- Added `request_token_id` and `get_id_token` methods
+to retrieve the user's id token.
+- Update firebase and friends to v8.1
+
 # firebase 0.2.0
 
 - Fix potential security issue [#11](https://github.com/JohnCoene/firebase/issues/11)
