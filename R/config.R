@@ -1,91 +1,93 @@
 #' Config
 #' 
-#' Create the configuration file necessary to running fireblaze.
+#' Configure Firebase, either using a config file or by setting
+#' environment variables (see section below).
+#' 
+#' Creates the configuration file necessary to running fireblaze.
 #' Note that if you changed the project you must use said ID
 #' here, not the one originally created by Google. 
 #' 
+#' Classes of the package look first for the configuration file
+#' then, if not found look for the environment variables.
+#' 
 #' @param api_key API key of your project.
 #' @param project_id Id of your web project.
-#' @param auth_domain Authentication domain, if omitted uses,
-#' attempts to build firebase's default domain. 
+#' @param auth_domain Authentication domain, if `NULL`
+#' attempts to build firebase's default domain.
+#' @param storage_bucket URl to the bucket. if `NULL`
+#' attempts to build firebase's default storage domain.
+#' @param database_url URL to the database, required to use
+#' the `RealtimeDatabase`.
+#' @param app_id Application ID, necessary for Analytics.
 #' @param overwrite Whether to overwrite any existing configuration file.
 #' 
-#' @details Do not share this file with anyone.
+#' @section Environment Variables:
+#' - `FIREBASE_API_KEY`
+#' - `FIREBASE_PROJECT_ID`
+#' - `FIREBASE_AUTH_DOMAIN`
+#' - `FIREBASE_STORAGE_BUCKET`
+#' - `FIREBASE_APP_ID`
+#' - `FIREBASE_DATABASE_URL`
+#' 
+#' @note Do not share this file with anyone.
 #' 
 #' @return Path to file.
+#' 
+#' @importFrom cli cli_alert_danger cli_alert_warning cli_alert_success
 #' 
 #' @examples \dontrun{firebase_config("xXxxx", "my-project")}
 #' 
 #' @name config
 #' 
 #' @export
-create_config <- function(api_key, project_id, auth_domain = NULL, overwrite = FALSE){
+firebase_config <- function(
+  api_key, 
+  project_id, 
+  auth_domain = NULL, 
+  storage_bucket = NULL,
+  app_id = NULL,
+  database_url = NULL,
+  overwrite = FALSE
+){
 
-  .Deprecated("firebase_config", package = "firebase")
+  if(is.null(app_id))
+    cli_alert_warning("`app_id` is not set, analytics will not work")
 
-  if(missing(api_key) || missing(project_id) )
+  # check if file exists
+  exists <- has_config(config_file)
+  if(exists && overwrite)
+    cli_alert_warning("Overwriting existing config file.")
+
+  if(exists && !overwrite){
+    cli_alert_danger("Config file already exists, see `overwrite` argument.")
+    return(invisible())
+  }
+
+  if(missing(api_key) || missing(project_id))
     stop("Missing `api_key`, or `project_id`", call. = FALSE)
 
   if(is.null(auth_domain)){
     auth_domain <- paste0(project_id, ".firebaseapp.com")
-    cli::cli_alert_warning(paste("Setting `auth_domain` to", auth_domain))
+    cli_alert_warning(paste("Setting `auth_domain` to", auth_domain))
+  }
+  
+  if(is.null(storage_bucket)){
+    storage_bucket <- paste0(project_id, ".appspot.com")
+    cli_alert_warning(paste("Setting `storage_bucket` to", storage_bucket))
   }
 
   lst <- list(
     apiKey = .enc(api_key),
     authDomain = .enc(auth_domain),
-    projectId = .enc(project_id)
+    projectId = .enc(project_id),
+    storageBucket = .enc(storage_bucket),
+    appId = .enc(app_id),
+    databaseURL = .enc(database_url)
   )
-
-  # check if file exists
-  exists <- has_config(config_file)
-  if(exists && overwrite)
-    cli::cli_alert_warning("Overwriting existing config file.")
-
-  if(exists && !overwrite){
-    cli::cli_alert_danger("Config file already exists, see `overwrite` argument.")
-    return(invisible())
-  }
 
   saveRDS(lst, file = config_file)
 
-  cli::cli_alert_warning("Do not commit this file to github")
-  cli::cli_alert_success("Configuration file created.")
-
-  invisible(config_file)
-}
-
-#' @rdname config
-#' @export
-firebase_config <- function(api_key, project_id, auth_domain = NULL, overwrite = FALSE){
-
-  if(missing(api_key) || missing(project_id) )
-    stop("Missing `api_key`, or `project_id`", call. = FALSE)
-
-  if(is.null(auth_domain)){
-    auth_domain <- paste0(project_id, ".firebaseapp.com")
-    cli::cli_alert_warning(paste("Setting `auth_domain` to", auth_domain))
-  }
-
-  lst <- list(
-    apiKey = .enc(api_key),
-    authDomain = .enc(auth_domain),
-    projectId = .enc(project_id)
-  )
-
-  # check if file exists
-  exists <- has_config(config_file)
-  if(exists && overwrite)
-    cli::cli_alert_warning("Overwriting existing config file.")
-
-  if(exists && !overwrite){
-    cli::cli_alert_danger("Config file already exists, see `overwrite` argument.")
-    return(invisible())
-  }
-
-  saveRDS(lst, file = config_file)
-
-  cli::cli_alert_success("Configuration file created.")
+  cli_alert_success("Configuration file created.")
 
   invisible(config_file)
 }
@@ -99,20 +101,68 @@ firebase_config <- function(api_key, project_id, auth_domain = NULL, overwrite =
 #' @name read_config
 #' 
 #' @keywords internal
-read_config <- function(path){
-  if(missing(path))
-    stop("Missing `path`", call. = FALSE)
+read_config <- function(path = "firebase.rds"){
+  if(!has_config(path))
+    return(get_config_from_env())
 
-  stopifno_config(path)
-
-  config <- readRDS(path)
-  config <- lapply(config, .dec)
-
-  # avoid printing creds
-  invisible(config)
+  get_config_from_file(path)
 }
 
-#' @rdname read_config
+#' Config from Environment Variables
+#' 
+#' Builds the configuration object from environment variables.
+#' 
+#' @importFrom cli cli_alert_info cli_alert_warning
+#' 
+#' @keywords internal
+get_config_from_env <- function(){
+
+  api_key <- Sys.getenv("FIREBASE_API_KEY")
+  project_id <- Sys.getenv("FIREBASE_PROJECT_ID")
+  auth_domain <- Sys.getenv("FIREBASE_AUTH_DOMAIN")
+  storage_bucket <- Sys.getenv("FIREBASE_STORAGE_BUCKET")
+  app_id <- Sys.getenv("FIREBASE_APP_ID")
+  database_url <- Sys.getenv("FIREBASE_DATABASE_URL")
+  
+  if(api_key == "" || project_id == "")
+    stop("Cannot find configuration file, see `?firebase_config`", call. = FALSE)
+
+  if(auth_domain == ""){
+    auth_domain <- paste0(project_id, ".firebaseapp.com")
+    cli_alert_warning(paste("Setting `auth_domain` to", auth_domain))
+  }
+  
+  if(storage_bucket == ""){
+    storage_bucket <- paste0(project_id, ".appspot.com")
+    cli_alert_warning(paste("Setting `storage_bucket` to", storage_bucket))
+  }
+  
+  cli_alert_info("Fetching firebase config from environment variables")
+
+  list(
+    apiKey = api_key,
+    authDomain = auth_domain,
+    projectId = project_id,
+    storageBucket = storage_bucket,
+    appId = app_id,
+    databaseURL = database_url
+  )
+}
+
+#' Config from Environment File
+#' 
+#' Builds the configuration object from config file.
+#' 
+#' @importFrom cli cli_alert_info
+#' 
+#' @keywords internal
+get_config_from_file <- function(path = "firebase.rds"){
+  stopifno_config(path)
+  config <- readRDS(path)
+  cli_alert_info("Fetching firebase config from file")
+  lapply(config, .dec)
+}
+
 #' @keywords internal
 stopifno_config <- function(path){
   has_it <- has_config(path)
@@ -123,12 +173,9 @@ stopifno_config <- function(path){
   invisible()
 }
 
-#' @rdname read_config
 #' @keywords internal
 has_config <- function(path){
-  has_it <- file.exists(path)
-
-  has_it
+  file.exists(path)
 }
 
 #' Encryption
@@ -140,11 +187,20 @@ has_config <- function(path){
 #' @keywords internal
 #' @name encryption
 .enc <- function(x){
-  charToRaw(x)
+  if(!is.null(x) && x == "")
+    return(NULL)
+
+  tryCatch(
+    charToRaw(x),
+    error = function(e) NULL
+  )
 }
 
 #' @keywords internal
 #' @rdname encryption
 .dec <- function(x){
+  if(is.null(x))
+    return(NULL)
+  
   rawToChar(x)
 }

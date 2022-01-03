@@ -2,21 +2,34 @@
 % Please edit documentation in R/config.R
 \name{config}
 \alias{config}
-\alias{create_config}
 \alias{firebase_config}
 \title{Config}
 \usage{
-create_config(api_key, project_id, auth_domain = NULL, overwrite = FALSE)
-
-firebase_config(api_key, project_id, auth_domain = NULL, overwrite = FALSE)
+firebase_config(
+  api_key,
+  project_id,
+  auth_domain = NULL,
+  storage_bucket = NULL,
+  app_id = NULL,
+  database_url = NULL,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{api_key}{API key of your project.}
 
 \item{project_id}{Id of your web project.}
 
-\item{auth_domain}{Authentication domain, if omitted uses,
+\item{auth_domain}{Authentication domain, if \code{NULL}
 attempts to build firebase's default domain.}
+
+\item{storage_bucket}{URl to the bucket. if \code{NULL}
+attempts to build firebase's default storage domain.}
+
+\item{app_id}{Application ID, necessary for Analytics.}
+
+\item{database_url}{URL to the database, required to use
+the \code{RealtimeDatabase}.}
 
 \item{overwrite}{Whether to overwrite any existing configuration file.}
 }
@@ -24,13 +37,32 @@ attempts to build firebase's default domain.}
 Path to file.
 }
 \description{
-Create the configuration file necessary to running fireblaze.
-Note that if you changed the project you must use said ID
-here, not the one originally created by Google.
+Configure Firebase, either using a config file or by setting
+environment variables (see section below).
 }
 \details{
+Creates the configuration file necessary to running fireblaze.
+Note that if you changed the project you must use said ID
+here, not the one originally created by Google.
+
+Classes of the package look first for the configuration file
+then, if not found look for the environment variables.
+}
+\note{
 Do not share this file with anyone.
 }
+\section{Environment Variables}{
+
+\itemize{
+\item \code{FIREBASE_API_KEY}
+\item \code{FIREBASE_PROJECT_ID}
+\item \code{FIREBASE_AUTH_DOMAIN}
+\item \code{FIREBASE_STORAGE_BUCKET}
+\item \code{FIREBASE_APP_ID}
+\item \code{FIREBASE_DATABASE_URL}
+}
+}
+
 \examples{
 \dontrun{firebase_config("xXxxx", "my-project")}
 

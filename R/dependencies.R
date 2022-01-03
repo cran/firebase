@@ -4,12 +4,9 @@
 #' \code{use_firebase} \emph{must} be included in 
 #' every application.
 #' 
-#' @param analytics Whether to include analytics.
+#' @param analytics Deprecated. Whether to include analytics.
 #' @param firestore Whether to include firestore.
-#' @param container Whether to include the container that
-#' wraps the pre-built UI. If set to \code{FALSE} then
-#' one must use \code{firebaseUIContainer} where said
-#' pre-built UI is required.
+#' @param ... Ignored, for backwards compatibility.
 #' 
 #' @details Place \code{useFirebaseUI} \emph{where} you want
 #' the pre-built UI to be placed. Otherwise one
@@ -22,52 +19,42 @@
 #' }
 #' 
 #' @importFrom shiny tags tagList singleton div req
+#' @importFrom htmltools htmlDependency
 #' 
 #' @name dependencies
 #' 
 #' @export 
 useFirebase <- function(analytics = FALSE, firestore = FALSE){
-  singleton(
-    tags$head(
-      tags$link(type = "text/css", rel = "stylesheet", href = "fireblaze/style.css"),
-      tags$script(src = "firebase/js/firebase-app.js"),
-      tags$script(src = "firebase/js/firebase-auth.js"),
-      if(analytics) tags$script(src = "firebase/js/firebase-analytics.js"),
-      if(firestore) tags$script(src = "firebase/js/firebase-firestore.js"),
-      tags$script(src = "fireblaze/core-utils.js"),
-      tags$script(src = "fireblaze/core.js"),
-      tags$script(src = "fireblaze/email-password.js"),
-      tags$script(src = "fireblaze/email-link.js"),
-      tags$script(src = "fireblaze/social.js"),
-      tags$script(src = "fireblaze/oauth.js"),
-      tags$script(src = "fireblaze/phone.js")
+  if(any(analytics, firestore))
+    .Deprecated(
+      "analytics and firestore",
+      package = "firebase",
+      msg = "analytics and firestore arguments are deprecated"
+    )
+
+  htmlDependency(
+    "firebase",
+    utils::packageVersion("firebase"),
+    src = "packer",
+    package = "firebase",
+    script = c(
+      "runtime.js",
+      "auth.js",
+      "utilities.js",
+      "core.js"
     )
   )
 }
 
 #' @export
 #' @rdname dependencies
-useFirebaseUI <- function(container = TRUE){
-  # dependencies plus signin container
-  deps <- singleton(
-    tags$head(
-      tags$script(src = "fireblaze/ui-utils.js"),
-      tags$script(src = "firebase-ui/js/firebase-ui.js"),
-      tags$link(
-        type = "text/css",
-        rel = "stylesheet",
-        href = "firebase-ui/css/firebase-ui.css"
-      )
-    )
+useFirebaseUI <- function(...){
+  .Deprecated(
+    "firebaseUIContainer",
+    "firebase",
+    msg = "Use `firebaseUIContainer` where you want the pre-built UI to be placed"
   )
-
-  if(!container)
-    return(deps)
-
-  tagList(
-    deps,
-    div(id = "fireblaze-signin-ui")
-  )
+  div(id = "fireblaze-signin-ui")
 }
 
 #' @export
@@ -76,14 +63,88 @@ firebaseUIContainer <- function(){
   div(id = "fireblaze-signin-ui")
 }
 
-#' Recaptcha
-#' 
-#' Add the recaptcha, require for the `FirebasePhone`
-#' class.
-#' 
-#' @export 
-recaptcha <- function(){
-  div(
-    id = "firebase-recaptcha"
-  ) 
+firebase_dep_analytics <- function(){
+  htmlDependency(
+    "firebase-analytics",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "analytics.js"
+  )
 }
+
+firebase_dep_email_link <- function(){
+  htmlDependency(
+    "firebase-email-link",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "email-link.js"
+  )
+}
+
+firebase_dep_email_password <- function(){
+  htmlDependency(
+    "firebase-email-password",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "email-password.js"
+  )
+}
+
+firebase_dep_oauth <- function(){
+  htmlDependency(
+    "firebase-oauth",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "oauth.js"
+  )
+}
+
+firebase_dep_phone <- function(){
+  htmlDependency(
+    "firebase-phone",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "phone.js"
+  )
+}
+
+firebase_dep_social <- function(){
+  htmlDependency(
+    "firebase-social",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "social.js"
+  )
+}
+
+firebase_dep_storage <- function(){
+  htmlDependency(
+    "firebase-storage",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "storage.js"
+  )
+}
+
+firebase_dep_ui <- function(){
+  htmlDependency(
+    "firebase-ui",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "ui.js"
+  )
+}
+
+firebase_dep_real_time <- function(){
+  htmlDependency(
+    "firebase-real-time",
+    utils::packageVersion("firebase"),
+    src = c(href = "firebase-assets"),
+    script = "real-time.js"
+  )
+}
+
+shiny::addResourcePath(
+  "firebase-assets",
+  system.file("packer", package = "firebase")
+)

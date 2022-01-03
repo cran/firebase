@@ -1,7 +1,8 @@
 Package: firebase
-Title: Integrates 'Google Firebase' Authentication Method with 'Shiny'
-Version: 0.2.1
-Date: 2021-10-24
+Title: Integrates 'Google Firebase' Authentication Storage, and
+        'Analytics' with 'Shiny'
+Version: 1.0.0
+Date: 2022-01-02
 Authors@R: 
     person(
       given = "John",
@@ -12,16 +13,19 @@ Authors@R:
 Description: Authenticate users in 'Shiny' applications using 'Google Firebase' 
     with any of the many methods provided; email and password, email link, or
     using a third-party provider such as 'Github', 'Twitter', or 'Google'.
+    use 'Firebase Storage' to store files securely, and leverage 'Firebase Analytics'
+    to easily log events and better understand your audience.
 License: AGPL-3
 Encoding: UTF-8
-Imports: R6, cli, shiny, openssl, jose
+Imports: R6 (>= 2.5.0), cli, jose, shiny, openssl, jsonlite, base64enc,
+        htmltools
 RoxygenNote: 7.1.2
 URL: https://firebase.john-coene.com/,
         https://github.com/JohnCoene/firebase
 BugReports: https://github.com/JohnCoene/firebase/issues
 NeedsCompilation: no
-Packaged: 2021-10-24 18:50:21 UTC; jp
+Packaged: 2022-01-03 13:30:25 UTC; john
 Author: John Coene [aut, cre]
 Maintainer: John Coene <jcoenep@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-10-24 19:00:02 UTC
+Date/Publication: 2022-01-03 14:20:02 UTC
