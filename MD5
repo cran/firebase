@@ -1,6 +1,6 @@
-6fbdedc929b1f781cfaa3f8cd8d5a2b2 *DESCRIPTION
-a42199b74673672085d89f53139f91c6 *NAMESPACE
-45782c13598a1f6bf943f8a53da39a96 *NEWS.md
+62aee91d472121969c16faa207152c5c *DESCRIPTION
+9cc0886bef5e0d3e8a2b38608ca26f3d *NAMESPACE
+ee265bd940b434b39938b5d5f13010d2 *NEWS.md
 cee35179445105fc823c4b1b539927bb *R/class-analytics.R
 a62d3d09b4562781775afeb460f6e034 *R/class-auth.R
 49de99d8b796b638a7a43ad081c393a2 *R/class-core.R
@@ -8,12 +8,12 @@ a62d3d09b4562781775afeb460f6e034 *R/class-auth.R
 7ac17e79d87044d2e95e86202266ab84 *R/class-email-password.R
 500ff21cf54ab77b21dffcd048dd3786 *R/class-oauth.R
 846b2c8e930c2f40a3954d768b2ac7ab *R/class-phone.R
-f2799f853cf9c9a83cd8457ff910984c *R/class-real-time.R
+ddf1415ea3aa5e7c03638ce8b3774283 *R/class-real-time.R
 8084531133e1351cdd646490110f3d42 *R/class-social.R
-a541c6e8717221757d7786fe5976468a *R/class-storage.R
+b43b6d5069be9b94a00f2107438900fe *R/class-storage.R
 782fe9df11ecafda13df8bd6d421d1a5 *R/class-ui.R
 c1a34b4e9e3642a867596e5700a76612 *R/config.R
-83f105d4d9b3914171c61cc82a10a2f1 *R/dependencies.R
+df20af32e2db83548649b6eb2b098c58 *R/dependencies.R
 c275f90f5051e327cc1b27f7897c22fe *R/toggle.R
 738f62b0284f7d18d51874d54ddd466c *R/utils.R
 10120b69eb4748b231b30a1e5732bc5e *README.md
@@ -47,7 +47,7 @@ ef5e1148d5a830d568829e56d09fbd05 *man/FirebaseEmailPassword.Rd
 43733efca0cd3278c534b8db028fd5a1 *man/FirebasePhone.Rd
 3a527da4ac27911e62c7ed8942ad5f2f *man/FirebaseSocial.Rd
 8f3ba00cfa74f5073e08698fb4317123 *man/FirebaseUI.Rd
-d1f97dcc45de19db7df9a31cb1b262e6 *man/RealtimeDatabase.Rd
+dcf0aa782c68ee8225272672763ca14f *man/RealtimeDatabase.Rd
 f7551f87e128608f88f5fc5bab51c47c *man/Storage.Rd
 3ac1635019545c10c4b2a46c44948e51 *man/check_installed.Rd
 fbb132b145427eb5f2696f5d9e9a5d93 *man/check_providers.Rd

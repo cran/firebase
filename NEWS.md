@@ -1,3 +1,8 @@
+# firebase 1.0.1
+
+- Ressource dependencies registered on attach.
+- Fix issue where classes were not correctly exported.
+
 # firebase 1.0.0
 
 - Add support for phone sign in.
