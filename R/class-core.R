@@ -2,6 +2,8 @@
 #' 
 #' Core Firebase class.
 #' 
+#' @return An object of class \code{Firebase}.
+#' 
 #' @field session A valid Shiny session.
 #' 
 #' @export 
@@ -45,7 +47,7 @@ Firebase <- R6::R6Class(
     },
 #' @details Print the class
     print = function(){
-      rule("Firebase")
+      cli_rule("Firebase")
     }
 	),
 	private = list(
@@ -73,6 +75,11 @@ Firebase <- R6::R6Class(
       ns <- session$ns(NULL)
       if(length(ns) > 0 && ns != "")
         ns <- paste0(ns, "-")
+
+      # server - no ns
+      if(length(ns) == 0L)
+        ns <- ""
+
       private$.ns <- ns
     },
     get_project_id = function() {

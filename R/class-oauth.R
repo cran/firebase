@@ -2,6 +2,8 @@
 #' 
 #' Use OAuth provides such as Github or Facebook to allow users to conveniently sign in.
 #' 
+#' @return An object of class \code{FirebaseOauthProviders}.
+#' 
 #' @examples 
 #' library(shiny)
 #' library(firebase)
@@ -64,29 +66,38 @@ FirebaseOauthProviders <- R6::R6Class(
 		},
 #' @details Define provider to use
 #' @param provider The provider to user, e.g.: \code{microsoft.com}, \code{yahoo.com} or \code{google.com}.
+#' @param ... Additional options to pass to [setCustomParameters](https://github.com/firebase/snippets-web/blob/69c85abdc7cd6990618720cd33aa0d1ee357c652/snippets/auth-next/microsoft-oauth/auth_msft_provider_params.js#L8-L13).
 #' @return self
-    set_provider = function(provider){
+    set_provider = function(provider, ...){
       if(missing(provider))
         stop("Missing provider", call. = FALSE)
 
-      super$send("set-oauth-provider", list(id = super$.unique_id, provider = provider))
+      super$send(
+        "set-oauth-provider", 
+        list(
+          id = super$.unique_id, 
+          provider = provider,
+          opts = list(...)
+        )
+      )
 
       private$.provider <- provider
       invisible(self)
     },
 #' @details Launch sign in with Google.
 #' @param flow Authentication flow, either popup or redirect.
+#' @param get_credentials Whether to extract underlying oauth credentials.
 #' @return self
-    launch = function(flow = c("popup", "redirect")){
-      private$launch_oauth(match.arg(flow))
+    launch = function(flow = c("popup", "redirect"), get_credentials = FALSE){
+      private$launch_oauth(match.arg(flow), get_credentials = get_credentials)
       invisible(self)
     }
   ),
   private = list(
     .provider = NULL,
-    launch_oauth = function(flow = c("popup", "redirect")){
+    launch_oauth = function(flow = c("popup", "redirect"), get_credentials = FALSE){
       call <- paste0("oauth-sign-in-", flow)
-      super$send(call, list(id = super$.unique_id))
+      super$send(call, list(id = super$.unique_id, credentials = get_credentials))
     }
   )
 )

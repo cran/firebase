@@ -1,5 +1,7 @@
 #' Storage
 #' 
+#' @return An object of class \code{Storage}.
+#' 
 #' @importFrom base64enc base64encode
 #' 
 #' @export
@@ -61,7 +63,7 @@ Storage <- R6::R6Class(
 #'   ref("test.png")$
 #'   upload_file("path/to/file.png")
 #' 
-#' observeEvent(s$get_response() {
+#' observeEvent(s$get_response(), {
 #'   # do something
 #' })
 #' 
@@ -70,7 +72,7 @@ Storage <- R6::R6Class(
 #'   ref("test.png")$
 #'   upload_file("path/to/file.png", response = "fl")
 #' 
-#' observeEvent(s$get_response("fl") {
+#' observeEvent(s$get_response("fl"), {
 #'   # do something
 #' })
 #' }
@@ -117,7 +119,7 @@ Storage <- R6::R6Class(
 #'   upload_file("path/to/file.png")$
 #'   download_file("dl")
 #' 
-#' observeEvent(s$get_response("dl") {
+#' observeEvent(s$get_response("dl"), {
 #'   # do something
 #' })
 #' }

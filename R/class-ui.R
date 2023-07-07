@@ -2,6 +2,8 @@
 #' 
 #' Use firebase to manage authentications.
 #' 
+#' @return An object of class \code{FirebaseUI}.
+#' 
 #' @field tos_url URL to the Terms of Service page.
 #' @field privacy_policy_url The URL to the Privacy Policy page.
 #' 
@@ -79,6 +81,12 @@ FirebaseUI <- R6::R6Class(
 
       if(all(email, email_link))
         stop("Must set `email` or `email_link`")
+
+      if(email) {
+        super$.render_deps(
+          list(firebase_dep_email_password())
+        )
+      }
 
       opts <- list(
         google = google, 
